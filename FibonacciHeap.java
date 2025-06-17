@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * FibonacciHeap
  *
@@ -7,6 +10,11 @@
 public class FibonacciHeap
 {
 	public HeapNode min;
+	private int c;
+	private List<HeapNode> treeList = new ArrayList<>();
+	private int linksCount; //counter for links
+	private int cutsCount; //counter of cuts
+	private int heapSize;
 	
 	/**
 	 *
@@ -16,7 +24,10 @@ public class FibonacciHeap
 	 */
 	public FibonacciHeap(int c)
 	{
-		// should be replaced by student code
+		this.c = c;
+		this.linksCount = 0;
+		this.cutsCount = 0;
+		this.heapSize = 0;
 	}
 
 	/**
@@ -38,7 +49,10 @@ public class FibonacciHeap
 	 */
 	public HeapNode findMin()
 	{
-		return null; // should be replaced by student code
+		if(treeList.size() == 0){
+			return null; //if heap is empty
+		}
+		return min; 
 	}
 
 	/**
@@ -85,7 +99,7 @@ public class FibonacciHeap
 	 */
 	public int totalLinks()
 	{
-		return 46; // should be replaced by student code
+		return this.linksCount; 
 	}
 
 
@@ -96,7 +110,7 @@ public class FibonacciHeap
 	 */
 	public int totalCuts()
 	{
-		return 46; // should be replaced by student code
+		return this.cutsCount;
 	}
 
 
@@ -107,7 +121,10 @@ public class FibonacciHeap
 	 */
 	public void meld(FibonacciHeap heap2)
 	{
-		return; // should be replaced by student code   		
+		this.treeList.addAll(heap2._getTreeList());
+		if(heap2.findMin().key < this.min.key){
+			this.min = heap2.findMin();
+		}   		
 	}
 
 	/**
@@ -117,7 +134,7 @@ public class FibonacciHeap
 	 */
 	public int size()
 	{
-		return 46; // should be replaced by student code
+		return this.heapSize;
 	}
 
 
@@ -128,8 +145,20 @@ public class FibonacciHeap
 	 */
 	public int numTrees()
 	{
-		return 46; // should be replaced by student code
+		return this.treeList.size(); 
 	}
+
+
+	/**
+	 * 
+	 * 
+	 * Return a list of all trees in the heap
+	 * 
+	 */
+	public List<HeapNode> _getTreeList(){
+		return this.treeList;
+	}
+
 
 	/**
 	 * Class implementing a node in a Fibonacci Heap.
