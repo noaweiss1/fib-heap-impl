@@ -41,10 +41,11 @@ public class FibonacciHeap
 	{    
 		HeapNode node = new HeapNode(key, info);
 		this.treeList.add(node);
-		if(node.key < this.findMin().key){
+		if(node.key < this.findMin().key){ //might need to update min
 			this.min = node;
 		}
-		return node; // should be replaced by student code
+		this.heapSize++;
+		return node;
 	}
 
 	/**
@@ -67,9 +68,48 @@ public class FibonacciHeap
 	 *
 	 */
 	public int deleteMin()
-	{
-		return 46; // should be replaced by student code
+	{	
+		//remove the min from tree list
+		HeapNode prevMin = this.min;
+		int index = treeList.indexOf(prevMin);
+		treeList.remove(index);
 
+		//iterate over all children and add them to tree list
+		if(!(prevMin.child.equals(null))){ //if min had children
+			HeapNode currChild = prevMin.child; 
+			treeList.add(currChild);
+
+			while(!(currChild.next.equals(null))){
+				currChild = currChild.next;
+				treeList.add(currChild);
+			}
+		}
+
+		//successive linking
+		int logn = (int)Math.floor(Math.log(this.size())) +1;
+		HeapNode[] baskets = new HeapNode[logn]; //helper array to 
+		int linksDone = 0;
+		for(int i=0 ; i<this.numTrees() ; i++){ //iterate over all roots
+			HeapNode node = treeList.get(i);
+			int cellIdx = node.rank;
+			while(!(baskets[cellIdx].equals(null))){ //if there already is a tree in this cell (same rank), link them and check next
+				HeapNode other = baskets[cellIdx];
+				baskets[cellIdx] = null;
+				node = _link(node,other); //link 2 nodes of same rank
+				linksDone++;
+				cellIdx++;
+			}
+			baskets[cellIdx] = node;
+		}
+
+		//update tree list
+		this.treeList = new ArrayList<>();
+		for(int i=0; i<logn ; i++){ // iterate over the array and add all trees to tree list
+			if (!(baskets[i].equals(null))){
+				this.treeList.add(baskets[i]);
+			}
+		}
+		return linksDone; 
 	}
 
 	/**
@@ -159,9 +199,9 @@ public class FibonacciHeap
 		return this.treeList.size(); 
 	}
 
+	//helper funcs:
 
 	/**
-	 * 
 	 * 
 	 * Return a list of all trees in the heap
 	 * 
@@ -170,7 +210,30 @@ public class FibonacciHeap
 		return this.treeList;
 	}
 
+	/**
+	 * 
+	 * link 2 trees to a new tree (based on heap rule)
+	 * 
+	 */
 
+	 public HeapNode _link(HeapNode node1, HeapNode node2){
+		//if node1 has smaller key than node2, it will be the root and node2 will become its child
+		if(node1.key < node2.key){
+			HeapNode prevChild = node1.child;
+			node1.child = node2;
+			node2.next = prevChild;
+			node1.rank++;
+			return node1;
+		}
+		else{//node2's key <= node1's key
+			HeapNode prevChild = node2.child;
+			node2.child = node1;
+			node1.next = prevChild;
+			node2.rank++;
+			return node2;
+		}
+		
+	 }
 	/**
 	 * Class implementing a node in a Fibonacci Heap.
 	 *  
