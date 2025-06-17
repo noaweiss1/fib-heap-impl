@@ -39,7 +39,12 @@ public class FibonacciHeap
 	 */
 	public HeapNode insert(int key, String info) 
 	{    
-		return null; // should be replaced by student code
+		HeapNode node = new HeapNode(key, info);
+		this.treeList.add(node);
+		if(node.key < this.findMin().key){
+			this.min = node;
+		}
+		return node; // should be replaced by student code
 	}
 
 	/**
@@ -88,7 +93,13 @@ public class FibonacciHeap
 	 */
 	public int delete(HeapNode x) 
 	{    
-		return 46; // should be replaced by student code
+		if(x.key > 0){ //to handle edge case of a very big key for x
+			this.decreaseKey(x, x.key);
+		}
+		this.decreaseKey(x, Integer.MAX_VALUE); //ensure x will be the new min
+		int links = this.deleteMin();
+
+		return links;
 	}
 
 
@@ -172,5 +183,13 @@ public class FibonacciHeap
 		public HeapNode prev;
 		public HeapNode parent;
 		public int rank;
+		public int childrenLost;
+
+		public HeapNode(int key, String info){
+			this.key = key;
+			this.info = info;
+			this.rank = 0; 
+			this.childrenLost = 0;
+		}
 	}
 }
