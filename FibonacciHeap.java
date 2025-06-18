@@ -259,7 +259,8 @@ public class FibonacciHeap
 		this.treeList.addAll(heap2._getTreeList());
 		if(heap2.findMin().key < this.min.key){
 			this.min = heap2.findMin();
-		}   		
+		}  
+		this.heapSize = this.treeList.size(); 		
 	}
 
 	/**
