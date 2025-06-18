@@ -109,6 +109,8 @@ public class FibonacciHeap
 				this.treeList.add(baskets[i]);
 			}
 		}
+
+		this.linksCount += linksDone;
 		return linksDone; 
 	}
 
@@ -122,7 +124,35 @@ public class FibonacciHeap
 	 */
 	public int decreaseKey(HeapNode x, int diff) 
 	{    
-		return 46; // should be replaced by student code
+		int cuts = 0;
+		x.key -= diff;
+		// if has no dad, was a root
+		if(x.parent.equals(null)){ 
+			if(x.key<this.findMin().key){
+				this.min = x;
+			}
+			return cuts;
+		}
+		// if the new key doesn't break heap rule, no cuts needs to be done
+		if(x.key >= x.parent.key){ 
+			return cuts;
+		}
+
+		//else: cut x, and maybe need cascading cuts
+		HeapNode currDad = x.parent;
+		_cut(x); //cut the node and create a new tree, update all relevent fields
+		cuts++;
+		//while the dad has a dad (so it can be cut) AND lost c children (so it needs to be cut)
+		while(!(currDad.parent.equals(null)) && currDad.childrenLost == this.c){ 
+			HeapNode node = currDad;
+			currDad = node.parent;
+			_cut(node); //cut the node and create a new tree, update all relevent fields 
+			cuts++;
+
+		}
+
+		this.cutsCount += cuts;
+		return cuts; 
 	}
 
 	/**
@@ -136,8 +166,10 @@ public class FibonacciHeap
 		if(x.key > 0){ //to handle edge case of a very big key for x
 			this.decreaseKey(x, x.key);
 		}
-		this.decreaseKey(x, Integer.MAX_VALUE); //ensure x will be the new min
+		int cuts = this.decreaseKey(x, Integer.MAX_VALUE); //ensure x will be the new min
 		int links = this.deleteMin();
+		this.linksCount += links; //update total links count 
+		this.cutsCount += cuts; //update total cuts count 
 
 		return links;
 	}
@@ -221,19 +253,72 @@ public class FibonacciHeap
 		if(node1.key < node2.key){
 			HeapNode prevChild = node1.child;
 			node1.child = node2;
+			node2.parent = node1;
 			node2.next = prevChild;
+			prevChild.prev = node2;
 			node1.rank++;
 			return node1;
 		}
 		else{//node2's key <= node1's key
 			HeapNode prevChild = node2.child;
 			node2.child = node1;
+			node1.parent = node2;
 			node1.next = prevChild;
+			prevChild.prev = node1;
 			node2.rank++;
 			return node2;
 		}
 		
 	 }
+
+
+	 /**
+	  * 
+	  * cut the node: remove it from its parnt children list and insert it to tree list
+	  * update all relevat fields of: the node, its parent and its siblings
+	  *
+	  */
+	 public void _cut(HeapNode node){
+		//keep pointers:
+		HeapNode prevPrev = node.prev;
+		HeapNode prevDad = node.parent;
+		HeapNode prevNext = node.next;
+		//the node we cut now has no parent and no siblings:
+		node.parent = null;
+		node.next = null;
+		node.prev = null;
+		//node is now a new tree:
+		this.treeList.add(node);
+		//bypass node (remove it from "children list")
+		if(!(prevPrev.equals(null))){ // if node had prev
+			if(!(prevNext.equals(null))){ // if node had next as well, it will be prev's new next (bypass node)
+				prevPrev.next = prevNext;
+			}
+			else{ //node didnt have next
+				prevPrev.next = null; // prev is now the last child
+			}
+		}
+		if(!(prevNext.equals(null))){ // if node had next
+			if(!(prevPrev.equals(null))){ // if node had prev as well, it will be next's new prev (bypass node)
+				prevNext.prev = prevPrev;
+			}
+			else{ //node didnt have prev
+				prevNext.prev = null; //prev is now the first child
+				prevDad.child = prevNext; //prev is the new first child so it needs to dad's child
+			}
+		}
+		//if node was only child:
+		if(prevDad.child.equals(node) && prevNext.equals(null)){
+			prevDad.child = null;
+		}
+
+		//handle dad: update its rank and childrenLost:
+		prevDad.rank--;
+		prevDad.childrenLost++;
+
+	 }
+
+
 	/**
 	 * Class implementing a node in a Fibonacci Heap.
 	 *  
