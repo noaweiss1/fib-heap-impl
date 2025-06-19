@@ -69,6 +69,8 @@ public class FibonacciHeap
 	 */
 	public int deleteMin()
 	{	
+		java.util.ArrayList<Object> buckets = new java.util.ArrayList<>();
+
 		//remove the min from tree list
 		HeapNode prevMin = this.min;
 		int index = treeList.indexOf(prevMin);
@@ -90,7 +92,6 @@ public class FibonacciHeap
 		}
 
 	// Successive linking using dynamic list instead of fixed array
-	List<HeapNode> baskets = new ArrayList<>();
 	int linksDone = 0;
 
 	for (int i = 0; i < this.numTrees(); i++) {
@@ -98,29 +99,30 @@ public class FibonacciHeap
 		int cellIdx = node.rank;
 
 		// Ensure the baskets list is big enough
-		while (cellIdx >= baskets.size()) {
-			baskets.add(null);
+		while (cellIdx >= buckets.size()) {
+			buckets.add(null);
 		}
 
 		// Link until there's an empty slot
-		while (baskets.get(cellIdx) != null) {
-			HeapNode other = baskets.get(cellIdx);
-			baskets.set(cellIdx, null);
+		while (buckets.get(cellIdx) != null) {
+			HeapNode other = (HeapNode)buckets.get(cellIdx);
+			buckets.set(cellIdx, null);
 			node = _link(node, other);
 			linksDone++;
 			cellIdx++;
-			while (cellIdx >= baskets.size()) {
-				baskets.add(null);
+			while (cellIdx >= buckets.size()) {
+				buckets.add(null);
 			}
 		}
 
-		baskets.set(cellIdx, node);
+		buckets.set(cellIdx, node);
 	}
 
 	// Update treeList and find new min
 	this.treeList = new ArrayList<>();
 	this.min = null;
-	for (HeapNode node : baskets) {
+	for (Object x : buckets) {
+		HeapNode node = (HeapNode)x;
 		if (node != null) {
 			this.treeList.add(node);
 			if (this.min == null || node.key < this.min.key) {
@@ -129,38 +131,8 @@ public class FibonacciHeap
 		}
 	}
 
-
-		/*
-		//successive linking
-		int logn = (int)Math.floor(Math.log(this.size()) / Math.log(PHI)) +1;
-		HeapNode[] baskets = new HeapNode[logn]; //helper array to 
-		int linksDone = 0;
-		for(int i=0 ; i<this.numTrees() ; i++){ //iterate over all roots
-			HeapNode node = treeList.get(i);
-			int cellIdx = node.rank;
-			while(baskets[cellIdx] != null){ //if there already is a tree in this cell (same rank), link them and check next
-				HeapNode other = baskets[cellIdx];
-				baskets[cellIdx] = null;
-				node = _link(node,other); //link 2 nodes of same rank
-				linksDone++;
-				cellIdx++;
-			}
-			baskets[cellIdx] = node;
-		}
-
-		//update tree list and look for new min
-		this.treeList = new ArrayList<>();
-		for(int i=0; i<logn ; i++){ // iterate over the array and add all trees to tree list
-			if (baskets[i] != null){
-				this.treeList.add(baskets[i]);
-				if(this.min == null || baskets[i].key < this.min.key){
-					this.min = baskets[i];
-				}
-			}
-		}
-*/
-		this.linksCount += linksDone;
-		return linksDone; 
+	this.linksCount += linksDone;
+	return linksDone; 
 	}
 
 	/**
