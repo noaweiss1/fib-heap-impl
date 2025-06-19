@@ -224,14 +224,19 @@ public class FibonacciHeap
 	 * Meld the heap with heap2
 	 *
 	 */
-	public void meld(FibonacciHeap heap2)
-	{
-		this.treeList.addAll(heap2._getTreeList());
-		if(heap2.findMin().key < this.min.key){
-			this.min = heap2.findMin();
-		}  
-		this.heapSize = this.treeList.size(); 		
-	}
+        public void meld(FibonacciHeap heap2)
+        {
+                this.treeList.addAll(heap2._getTreeList());
+
+                HeapNode otherMin = heap2.findMin();
+                if(otherMin != null && (this.min == null || otherMin.key < this.min.key)){
+                        this.min = otherMin;
+                }
+
+                this.heapSize += heap2.size();
+                this.linksCount += heap2.totalLinks();
+                this.cutsCount += heap2.totalCuts();
+        }
 
 	/**
 	 * 
