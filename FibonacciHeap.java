@@ -236,6 +236,13 @@ public class FibonacciHeap
                 this.heapSize += heap2.size();
                 this.linksCount += heap2.totalLinks();
                 this.cutsCount += heap2.totalCuts();
+
+                // empty heap2 after melding
+                heap2.treeList.clear();
+                heap2.min = null;
+                heap2.heapSize = 0;
+                heap2.linksCount = 0;
+                heap2.cutsCount = 0;
         }
 
 	/**
