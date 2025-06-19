@@ -165,7 +165,7 @@ public class FibonacciHeap
 		}
 		cuts++;
 		//while the dad has a dad (so it can be cut) AND lost c children (so it needs to be cut)
-		while(currDad.parent != null && currDad.childrenLost == this.c){ 
+		while(currDad.parent != null && currDad.childrenLost >= this.c){ 
 			HeapNode node = currDad;
                         currDad = node.parent;
                         _cut(node); //cut the node and create a new tree, update all relevant fields
@@ -301,25 +301,7 @@ public class FibonacciHeap
                 this.rootCount++;
         }
 
-        //helper funcs:
-
-	/**
-	 * 
-	 * Return a list of all trees in the heap
-	 * 
-	 */
-        public java.util.List<HeapNode> _getTreeList(){
-                java.util.ArrayList<HeapNode> list = new java.util.ArrayList<>();
-                if (this.min != null) {
-                        HeapNode start = this.min;
-                        HeapNode curr = start;
-                        do {
-                                list.add(curr);
-                                curr = curr.next;
-                        } while (curr != start);
-                }
-                return list;
-        }
+    //helper funcs:
 
 	/**
 	 * 

@@ -26,7 +26,7 @@ public class PrintHeap {
                 do {
                     printTree(child, prefix + (isLeft ? "│   " : "    "), true);
                     child = child.next;
-                } while (child != start);
+                } while (child != null);
             }
         }
     }

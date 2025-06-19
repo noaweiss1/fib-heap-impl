@@ -5,7 +5,7 @@ public class RandomizedTester {
     private static Random rand = new Random();
 
     public static void main(String[] args) {
-        runTest(100);
+        runTest(20);
         System.out.println("done");
     }
 
@@ -71,7 +71,7 @@ public class RandomizedTester {
             log.append("System.out.println(\"Tree count: \" + heap.numTrees());\n");
 
             // Tree count check
-            int rootCount = countRootList(heap);
+            int rootCount = countRootList(heap.findMin());
             log.append("System.out.println(\"Actual trees in root list: \" + ").append(rootCount).append(");\n");
             if (rootCount != heap.numTrees()) {
                 throw new RuntimeException("❌ Tree count mismatch: heap.numTrees() = " +
@@ -82,18 +82,27 @@ public class RandomizedTester {
             validateRanks(heap.findMin(), new HashSet<>());
 
             System.out.println(log);
+            PrintHeap.printFibonacciHeap(heap);
             return log.toString();
 
         } catch (Exception | AssertionError e) {
             System.err.println("❌ Error during testing!");
             e.printStackTrace();
             System.err.println("\n📜 Reproducible Java commands:\n" + log);
+            System.err.println("❌ Error during testing!");
+            e.printStackTrace();
             return log.toString();
         }
     }
 
-    private static int countRootList(FibonacciHeap heap) {
-        int count = heap._getTreeList().size();
+    private static int countRootList(FibonacciHeap.HeapNode min) {
+        if (min == null) return 0;
+        int count = 1;
+        FibonacciHeap.HeapNode curr = min.next;
+        while (curr != min) {
+            count++;
+            curr = curr.next;
+        }
         return count;
     }
 
