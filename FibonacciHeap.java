@@ -273,32 +273,36 @@ public class FibonacciHeap
 	 * 
 	 */
 
-	 public HeapNode _link(HeapNode node1, HeapNode node2){
-		//if node1 has smaller key than node2, it will be the root and node2 will become its child
-		if(node1.key < node2.key){
-			HeapNode prevChild = node1.child;
-			node1.child = node2;
-			node2.parent = node1;
-			node2.next = prevChild;
-			if(prevChild != null){
-				prevChild.prev = node2;
-			}
-			node1.rank++;
-			return node1;
-		}
-		else{//node2's key <= node1's key
-			HeapNode prevChild = node2.child;
-			node2.child = node1;
-			node1.parent = node2;
-			node1.next = prevChild;
-			if(prevChild != null){
-				prevChild.prev = node1;
-			}
-			node2.rank++;
-			return node2;
-		}
-		
-	 }
+         public HeapNode _link(HeapNode node1, HeapNode node2){
+                //if node1 has smaller key than node2, it will be the root and node2 will become its child
+                if(node1.key < node2.key){
+                        HeapNode prevChild = node1.child;
+                        node1.child = node2;
+                        node2.parent = node1;
+                        node2.prev = null;
+                        node2.childrenLost = 0;
+                        node2.next = prevChild;
+                        if(prevChild != null){
+                                prevChild.prev = node2;
+                        }
+                        node1.rank++;
+                        return node1;
+                }
+                else{//node2's key <= node1's key
+                        HeapNode prevChild = node2.child;
+                        node2.child = node1;
+                        node1.parent = node2;
+                        node1.prev = null;
+                        node1.childrenLost = 0;
+                        node1.next = prevChild;
+                        if(prevChild != null){
+                                prevChild.prev = node1;
+                        }
+                        node2.rank++;
+                        return node2;
+                }
+
+         }
 
 
 	 /**
