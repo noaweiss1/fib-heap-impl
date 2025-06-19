@@ -356,8 +356,9 @@ public class FibonacciHeap
 		node.parent = null;
 		node.next = null;
 		node.prev = null;
-                //node is now a new tree:
-                insertRoot(node);
+		//node is now a new tree:
+		insertRoot(node);
+		node.childrenLost = 0;
 		//if node was only child:
 		if(prevDad.child.equals(node) && prevNext == null){
 			prevDad.child = null;
