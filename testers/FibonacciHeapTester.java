@@ -66,6 +66,10 @@ public class FibonacciHeapTester {
         hb.insert(50,  "50");
         hb.insert(150, "150");
         ha.meld(hb);
+        if (hb.size() != 0 || hb.findMin() != null) {
+            throw new RuntimeException("meld hb clear test failed");
+        }
+        System.out.println("meld hb clear OK");
         if (ha.size() != 3 || ha.findMin().key != 50) {
             throw new RuntimeException("meld test failed");
         }
