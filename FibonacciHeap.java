@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * FibonacciHeap
@@ -11,7 +9,7 @@ public class FibonacciHeap
 {
 	public HeapNode min;
 	private int c;
-	private List<HeapNode> treeList = new ArrayList<>();
+        private int rootCount;
 	private int linksCount; //counter for links
 	private int cutsCount; //counter of cuts
 	private int heapSize;
@@ -22,13 +20,14 @@ public class FibonacciHeap
 	 * pre: c >= 2.
 	 *
 	 */
-	public FibonacciHeap(int c)
-	{
-		this.c = c;
-		this.linksCount = 0;
-		this.cutsCount = 0;
-		this.heapSize = 0;
-	}
+        public FibonacciHeap(int c)
+        {
+                this.c = c;
+                this.linksCount = 0;
+                this.cutsCount = 0;
+                this.heapSize = 0;
+                this.rootCount = 0;
+        }
 
 	/**
 	 * 
@@ -37,29 +36,23 @@ public class FibonacciHeap
 	 * Insert (key,info) into the heap and return the newly generated HeapNode.
 	 *
 	 */
-	public HeapNode insert(int key, String info) 
-	{    
-		HeapNode node = new HeapNode(key, info);
-		this.treeList.add(node);
-		if(this.size() == 0 || node.key < this.findMin().key){ //might need to update min
-			this.min = node;
-		}
-		this.heapSize++;
-		return node;
-	}
+        public HeapNode insert(int key, String info)
+        {
+                HeapNode node = new HeapNode(key, info);
+                insertRoot(node);
+                this.heapSize++;
+                return node;
+        }
 
 	/**
 	 * 
 	 * Return the minimal HeapNode, null if empty.
 	 *
 	 */
-	public HeapNode findMin()
-	{
-		if(treeList.size() == 0){
-			return null; //if heap is empty
-		}
-		return min; 
-	}
+        public HeapNode findMin()
+        {
+                return this.min;
+        }
 
 	/**
 	 * 
@@ -67,73 +60,78 @@ public class FibonacciHeap
 	 * Return the number of links.
 	 *
 	 */
-	public int deleteMin()
-	{	
-		java.util.ArrayList<Object> buckets = new java.util.ArrayList<>();
+        public int deleteMin()
+        {
+                java.util.ArrayList<Object> buckets = new java.util.ArrayList<>();
 
-		//remove the min from tree list
-		HeapNode prevMin = this.min;
-		int index = treeList.indexOf(prevMin);
-		treeList.remove(index);
-		this.heapSize--;
-		this.min = null;
+                if (this.min == null) {
+                        return 0;
+                }
 
-		//iterate over all children and add them to tree list
-		if(prevMin.child != null){ //if min had children
-			HeapNode currChild = prevMin.child; 
-			treeList.add(currChild);
-			currChild.parent = null;
+                HeapNode oldMin = this.min;
 
-			while(currChild.next != null){
-				currChild = currChild.next;
-				treeList.add(currChild);
-				currChild.parent = null;
-			}
-		}
+                // remove min from root list
+                if (oldMin.next == oldMin) {
+                        this.min = null;
+                } else {
+                        oldMin.prev.next = oldMin.next;
+                        oldMin.next.prev = oldMin.prev;
+                        this.min = oldMin.next;
+                }
+                this.rootCount--;
+                this.heapSize--;
 
-	// Successive linking using dynamic list instead of fixed array
-	int linksDone = 0;
+                // add children of min to root list
+                HeapNode child = oldMin.child;
+                while (child != null) {
+                        HeapNode nextChild = child.next;
+                        child.parent = null;
+                        child.prev = null;
+                        child.next = null;
+                        insertRoot(child);
+                        child = nextChild;
+                }
 
-	for (int i = 0; i < this.numTrees(); i++) {
-		HeapNode node = treeList.get(i);
-		int cellIdx = node.rank;
+                int linksDone = 0;
 
-		// Ensure the baskets list is big enough
-		while (cellIdx >= buckets.size()) {
-			buckets.add(null);
-		}
+                if (this.min != null) {
+                        HeapNode start = this.min;
+                        this.min = null;
+                        this.rootCount = 0;
+                        HeapNode curr = start;
+                        do {
+                                HeapNode next = curr.next;
+                                curr.prev = null;
+                                curr.next = null;
+                                int cellIdx = curr.rank;
+                                while (cellIdx >= buckets.size()) {
+                                        buckets.add(null);
+                                }
+                                while (buckets.get(cellIdx) != null) {
+                                        HeapNode other = (HeapNode) buckets.get(cellIdx);
+                                        buckets.set(cellIdx, null);
+                                        curr = _link(curr, other);
+                                        linksDone++;
+                                        cellIdx = curr.rank;
+                                        while (cellIdx >= buckets.size()) {
+                                                buckets.add(null);
+                                        }
+                                }
+                                buckets.set(cellIdx, curr);
+                                curr = next;
+                        } while (curr != start);
+                }
 
-		// Link until there's an empty slot
-		while (buckets.get(cellIdx) != null) {
-			HeapNode other = (HeapNode)buckets.get(cellIdx);
-			buckets.set(cellIdx, null);
-			node = _link(node, other);
-			linksDone++;
-			cellIdx++;
-			while (cellIdx >= buckets.size()) {
-				buckets.add(null);
-			}
-		}
+                for (Object obj : buckets) {
+                        HeapNode node = (HeapNode) obj;
+                        if (node != null) {
+                                insertRoot(node);
+                        }
+                }
 
-		buckets.set(cellIdx, node);
-	}
-
-	// Update treeList and find new min
-	this.treeList = new ArrayList<>();
-	this.min = null;
-	for (Object x : buckets) {
-		HeapNode node = (HeapNode)x;
-		if (node != null) {
-			this.treeList.add(node);
-			if (this.min == null || node.key < this.min.key) {
-				this.min = node;
-			}
-		}
-	}
-
-	this.linksCount += linksDone;
-	return linksDone; 
-	}
+                this.linksCount += linksDone;
+                return linksDone;
+        }
 
 	/**
 	 * 
@@ -226,20 +224,36 @@ public class FibonacciHeap
 	 */
         public void meld(FibonacciHeap heap2)
         {
-                this.treeList.addAll(heap2._getTreeList());
-
-                HeapNode otherMin = heap2.findMin();
-                if(otherMin != null && (this.min == null || otherMin.key < this.min.key)){
-                        this.min = otherMin;
+                if (heap2.min == null) {
+                        return;
                 }
 
-                this.heapSize += heap2.size();
-                this.linksCount += heap2.totalLinks();
-                this.cutsCount += heap2.totalCuts();
+                if (this.min == null) {
+                        this.min = heap2.min;
+                        this.rootCount = heap2.rootCount;
+                } else {
+                        // connect root lists
+                        HeapNode thisNext = this.min.next;
+                        HeapNode otherPrev = heap2.min.prev;
 
-                // empty heap2 after melding
-                heap2.treeList.clear();
+                        this.min.next = heap2.min;
+                        heap2.min.prev = this.min;
+
+                        otherPrev.next = thisNext;
+                        thisNext.prev = otherPrev;
+
+                        if (heap2.min.key < this.min.key) {
+                                this.min = heap2.min;
+                        }
+                        this.rootCount += heap2.rootCount;
+                }
+
+                this.heapSize += heap2.heapSize;
+                this.linksCount += heap2.linksCount;
+                this.cutsCount += heap2.cutsCount;
+
                 heap2.min = null;
+                heap2.rootCount = 0;
                 heap2.heapSize = 0;
                 heap2.linksCount = 0;
                 heap2.cutsCount = 0;
@@ -261,21 +275,51 @@ public class FibonacciHeap
 	 * Return the number of trees in the heap.
 	 * 
 	 */
-	public int numTrees()
-	{
-		return this.treeList.size(); 
-	}
+        public int numTrees()
+        {
+                return this.rootCount;
+        }
 
-	//helper funcs:
+        /**
+         * Insert a node into the root list.
+         */
+        private void insertRoot(HeapNode node)
+        {
+                if (this.min == null) {
+                        node.next = node;
+                        node.prev = node;
+                        this.min = node;
+                } else {
+                        node.next = this.min.next;
+                        node.prev = this.min;
+                        this.min.next.prev = node;
+                        this.min.next = node;
+                        if (node.key < this.min.key) {
+                                this.min = node;
+                        }
+                }
+                this.rootCount++;
+        }
+
+        //helper funcs:
 
 	/**
 	 * 
 	 * Return a list of all trees in the heap
 	 * 
 	 */
-	public List<HeapNode> _getTreeList(){
-		return this.treeList;
-	}
+        public java.util.List<HeapNode> _getTreeList(){
+                java.util.ArrayList<HeapNode> list = new java.util.ArrayList<>();
+                if (this.min != null) {
+                        HeapNode start = this.min;
+                        HeapNode curr = start;
+                        do {
+                                list.add(curr);
+                                curr = curr.next;
+                        } while (curr != start);
+                }
+                return list;
+        }
 
 	/**
 	 * 
@@ -330,8 +374,8 @@ public class FibonacciHeap
 		node.parent = null;
 		node.next = null;
 		node.prev = null;
-		//node is now a new tree:
-		this.treeList.add(node);
+                //node is now a new tree:
+                insertRoot(node);
 		//if node was only child:
 		if(prevDad.child.equals(node) && prevNext == null){
 			prevDad.child = null;
