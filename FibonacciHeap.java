@@ -160,8 +160,8 @@ public class FibonacciHeap
 		}
 
 		//else: cut x, and maybe need cascading cuts
-		HeapNode currDad = x.parent;
-		_cut(x); //cut the node and create a new tree, update all relevent fields
+                HeapNode currDad = x.parent;
+                _cut(x); //cut the node and create a new tree, update all relevant fields
 		if(x.key < this.min.key){
 			this.min = x;
 		}
@@ -169,8 +169,8 @@ public class FibonacciHeap
 		//while the dad has a dad (so it can be cut) AND lost c children (so it needs to be cut)
 		while(currDad.parent != null && currDad.childrenLost == this.c){ 
 			HeapNode node = currDad;
-			currDad = node.parent;
-			_cut(node); //cut the node and create a new tree, update all relevent fields 
+                        currDad = node.parent;
+                        _cut(node); //cut the node and create a new tree, update all relevant fields
 			if(node.key < this.min.key){
 				this.min = node;
 			}
@@ -310,8 +310,8 @@ public class FibonacciHeap
 
 	 /**
 	  * 
-	  * cut the node: remove it from its parnt children list and insert it to tree list
-	  * update all relevat fields of: the node, its parent and its siblings
+         * cut the node: remove it from its parent children list and insert it to tree list
+         * update all relevant fields of: the node, its parent and its siblings
 	  *
 	  */
 	 public void _cut(HeapNode node){
