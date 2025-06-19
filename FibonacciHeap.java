@@ -188,15 +188,13 @@ public class FibonacciHeap
 	 * Return the number of links.
 	 *
 	 */
-	public int delete(HeapNode x) 
-	{    
-		int cuts = this.decreaseKey(x, Integer.MAX_VALUE); //ensure x will be the new min
-		int links = this.deleteMin();
-		this.linksCount += links; //update total links count 
-		this.cutsCount += cuts; //update total cuts count 
+        public int delete(HeapNode x)
+        {
+                this.decreaseKey(x, Integer.MAX_VALUE); //ensure x will be the new min
+                int links = this.deleteMin();
 
-		return links;
-	}
+                return links;
+        }
 
 
 	/**
