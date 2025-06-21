@@ -5,12 +5,23 @@ public class ExperimentRunner {
 
     public static void main(String[] args) {
         int[] cValues = {2, 3, 4, 10, 20, 100, 1000, 5000};
-        for (int c : cValues) {
-            runExperiments(c);
+        double[] times1 = new double[cValues.length];
+        double[] times2 = new double[cValues.length];
+
+        for (int i = 0; i < cValues.length; i++) {
+            int c = cValues[i];
+            AvgTimes avg = runExperiments(c);
+            times1[i] = avg.exp1Time;
+            times2[i] = avg.exp2Time;
         }
+
+        GraphPlotter.plot(cValues, times1, "experiment1_runtime.png",
+                          "Experiment 1 Runtime vs c");
+        GraphPlotter.plot(cValues, times2, "experiment2_runtime.png",
+                          "Experiment 2 Runtime vs c");
     }
 
-    private static void runExperiments(int c) {
+    private static AvgTimes runExperiments(int c) {
         long totalTime1 = 0;
         long totalLinks1 = 0;
         long totalCuts1 = 0;
@@ -53,6 +64,8 @@ public class ExperimentRunner {
                            ", cuts=" + (totalCuts2 / RUNS) +
                            ", trees=" + (trees2 / RUNS) +
                            ", size=" + (size2 / RUNS));
+
+        return new AvgTimes(totalTime1 / (double)RUNS, totalTime2 / (double)RUNS);
     }
 
     private static Result experiment1(int c) {
@@ -140,6 +153,16 @@ public class ExperimentRunner {
             this.cuts = c;
             this.trees = tr;
             this.size = s;
+        }
+    }
+
+    private static class AvgTimes {
+        double exp1Time;
+        double exp2Time;
+
+        AvgTimes(double t1, double t2) {
+            this.exp1Time = t1;
+            this.exp2Time = t2;
         }
     }
 }
