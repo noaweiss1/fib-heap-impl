@@ -305,47 +305,48 @@ public class FibonacciHeap
 	}
 
 
-	/**
-	 * link 2 trees to a new tree (based on heap rule)
-	 */
+        /**
+         * Merge two trees according to the heap order and return the new root.
+         */
 
-	public HeapNode _link(HeapNode node1, HeapNode node2){
-		//if node1 has smaller key than node2, it will be the root and node2 will become its child
-		if(node1.key < node2.key){
-			HeapNode prevChild = node1.child;
-			node1.child = node2;
-			node2.parent = node1;
+        public HeapNode _link(HeapNode node1, HeapNode node2){
+                // node1 becomes parent and node2 is inserted as its first child
+                if(node1.key < node2.key){
+                        HeapNode prevChild = node1.child;
+                        node1.child = node2;
+                        node2.parent = node1;
 			node2.prev = null;
 			node2.childrenLost = 0;
 			node2.next = prevChild;
 			if(prevChild != null){
 				prevChild.prev = node2;
 			}
-			node1.rank++;
-			return node1;
-		}
-		else{//node2's key <= node1's key
-			HeapNode prevChild = node2.child;
-			node2.child = node1;
-			node1.parent = node2;
-			node1.prev = null;
-			node1.childrenLost = 0;
-			node1.next = prevChild;
-			if(prevChild != null){
-				prevChild.prev = node1;
-			}
-			node2.rank++;
-			return node2;
-		}
+                        node1.rank++;
+                        return node1;
+                }
+                else{// node2 becomes parent and node1 becomes its first child
+                        HeapNode prevChild = node2.child;
+                        node2.child = node1;
+                        node1.parent = node2;
+                        node1.prev = null;
+                        node1.childrenLost = 0;
+                        node1.next = prevChild;
+                        if(prevChild != null){
+                                prevChild.prev = node1;
+                        }
+                        node2.rank++;
+                        return node2;
+                }
 
 	}
 
 
-	 /**
-	  * cut the node: remove it from its parent children list and insert it to tree list
-	  * update all relevant fields of: the node, its parent and its siblings
-	  */
-	 public void _cut(HeapNode node){
+        /**
+         * Detach the node from its parent's child list, insert it into the root
+         * list, and decrease the parent's rank while increasing its
+         * childrenLost counter.
+         */
+        public void _cut(HeapNode node){
 		//keep pointers:
 		HeapNode prevPrev = node.prev;
 		HeapNode prevDad = node.parent;
